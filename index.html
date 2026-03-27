@@ -19,7 +19,7 @@
 
 <script>
 async function fetchPosts() {
-    const res = await fetch('/api/posts');
+    const res = await fetch('https://cx474y-5000.csb.app/api/posts');
     const data = await res.json();
     const container = document.getElementById('posts');
     container.innerHTML = '';
@@ -39,7 +39,7 @@ async function fetchPosts() {
 async function createPost() {
     const city = document.getElementById('city').value;
     const content = document.getElementById('content').value;
-    await fetch('/api/posts', {
+    await fetch('https://cx474y-5000.csb.app/api/posts', {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
         body: JSON.stringify({city, content})
@@ -50,7 +50,7 @@ async function createPost() {
 }
 
 async function like(id) {
-    await fetch(`/api/posts/${id}/like`, {method:'POST'});
+    await fetch(`https://cx474y-5000.csb.app/api/posts/${id}/like`, {method:'POST'});
     fetchPosts();
 }
 
@@ -59,7 +59,7 @@ function viewPost(id) {
 }
 
 async function logout() {
-    await fetch('/api/logout', {method:'POST'});
+    await fetch('https://cx474y-5000.csb.app/api/logout', {method:'POST'});
     window.location.href = 'login.html';
 }
 
