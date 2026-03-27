@@ -20,21 +20,31 @@ const params = new URLSearchParams(window.location.search);
 const username = params.get('username');
 
 async function fetchProfile() {
-    const res = await fetch(`https://cx474y-5000.csb.app/api/users/${username}`);
+    const res = await fetch(`https://cx474y-5000.csb.app/api/users/${username}`, {
+        credentials: 'include'
+    });
     const data = await res.json();
     if (!data.success) { alert(data.error); return; }
+
     document.getElementById('username').innerText = data.data.username;
     document.getElementById('bio').innerText = data.data.bio || "No bio yet.";
+
     const linksEl = document.getElementById('links');
-    data.data.links.forEach(l => { if(l) linksEl.innerHTML += `<li><a href="${l}" target="_blank">${l}</a></li>` });
+    linksEl.innerHTML = '';
+    data.data.links.forEach(l => {
+        if (l) linksEl.innerHTML += `<li><a href="${l}" target="_blank">${l}</a></li>`;
+    });
+
     const postsEl = document.getElementById('posts');
-    data.data.posts.forEach(p => postsEl.innerHTML += `<div>${p.content}</div>`);
+    postsEl.innerHTML = '';
+    data.data.posts.forEach(p => {
+        postsEl.innerHTML += `<div>${p.content}</div>`;
+    });
 }
 
 function goHome() { window.location.href='index.html'; }
 
 fetchProfile();
 </script>
-
 </body>
 </html>
