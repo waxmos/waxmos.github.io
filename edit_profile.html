@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Edit Profile</title>
+</head>
+<body>
+
+<h1>Edit Profile</h1>
+
+<p>Bio:</p>
+<textarea id="bio" rows="4" cols="50"></textarea><br>
+
+<p>Link 1:</p>
+<input type="url" id="link1" size="50"><br>
+<p>Link 2:</p>
+<input type="url" id="link2" size="50"><br>
+<p>Link 3:</p>
+<input type="url" id="link3" size="50"><br>
+
+<button onclick="saveProfile()">Save</button>
+<button onclick="goProfile()">Cancel</button>
+
+<script>
+async function loadProfile() {
+    const res = await fetch('https://cx474y-5000.csb.app/api/users/me');
+    const data = await res.json();
+    if (!data.success) { alert(data.error); return; }
+    document.getElementById('bio').value = data.data.bio || '';
+    document.getElementById('link1').value = data.data.links[0] || '';
+    document.getElementById('link2').value = data.data.links[1] || '';
+    document.getElementById('link3').value = data.data.links[2] || '';
+}
+
+async function saveProfile() {
+    const bio = document.getElementById('bio').value;
+    const link1 = document.getElementById('link1').value;
+    const link2 = document.getElementById('link2').value;
+    const link3 = document.getElementById('link3').value;
+
+    const res = await fetch('https://cx474y-5000.csb.app/api/users/me', {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({bio, link1, link2, link3})
+    });
+    const data = await res.json();
+    if (data.success) {
+        alert('Profile updated!');
+        goProfile();
+    } else {
+        alert(data.error);
+    }
+}
+
+function goProfile() {
+    window.location.href = `profile.html?username=${data?.data?.username || ''}`;
+}
+
+loadProfile();
+</script>
+
+</body>
+</html>
