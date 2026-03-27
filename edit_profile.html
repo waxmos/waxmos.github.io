@@ -20,12 +20,19 @@
 
 <button onclick="saveProfile()">Save</button>
 <button onclick="goProfile()">Cancel</button>
-
 <script>
+let myUsername = '';
+
 async function loadProfile() {
-    const res = await fetch('https://cx474y-5000.csb.app/api/users/me');
+    const res = await fetch('https://cx474y-5000.csb.app/api/users/me', {
+        credentials: 'include'
+    });
     const data = await res.json();
     if (!data.success) { alert(data.error); return; }
+
+    // save username for redirect
+    myUsername = data.data.username;
+
     document.getElementById('bio').value = data.data.bio || '';
     document.getElementById('link1').value = data.data.links[0] || '';
     document.getElementById('link2').value = data.data.links[1] || '';
@@ -38,10 +45,11 @@ async function saveProfile() {
     const link2 = document.getElementById('link2').value;
     const link3 = document.getElementById('link3').value;
 
-    const res = await fetch('https://cx474y-5000.csb.app/api/users/me', {
-        method: 'PUT',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({bio, link1, link2, link3})
+    const res = await fetch(`https://cx474y-5000.csb.app/api/users/${myUsername}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bio, link1, link2, link3 }),
+        credentials: 'include'
     });
     const data = await res.json();
     if (data.success) {
@@ -53,7 +61,7 @@ async function saveProfile() {
 }
 
 function goProfile() {
-    window.location.href = `profile.html?username=${data?.data?.username || ''}`;
+    window.location.href = `profile.html?username=${myUsername}`;
 }
 
 loadProfile();
