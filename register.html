@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Register</title>
+</head>
+<body>
+
+<h1>Register</h1>
+<input type="text" id="username" placeholder="Username"><br>
+<input type="email" id="email" placeholder="Email"><br>
+<input type="password" id="password" placeholder="Password"><br>
+<button onclick="register()">Register</button>
+<p>Or <a href="login.html">Login</a></p>
+
+<script>
+async function register() {
+    const username = document.getElementById('username').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const res = await fetch('https://cx474y-5000.csb.app/api/register', {
+        method:'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({username,email,password})
+    });
+    const data = await res.json();
+    if (data.success) {
+        alert("Registered! Please login.");
+        window.location.href = 'login.html';
+    } else {
+        alert(data.error);
+    }
+}
+</script>
+
+</body>
+</html>
