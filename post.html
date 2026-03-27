@@ -23,7 +23,9 @@ const params = new URLSearchParams(window.location.search);
 const postId = params.get('id');
 
 async function fetchPost() {
-    const res = await fetch(`https://cx474y-5000.csb.app/api/posts/${postId}`);
+    const res = await fetch(`https://cx474y-5000.csb.app/api/posts/${postId}`, {
+        credentials: 'include'
+    });
     const data = await res.json();
     if (!data.success) { alert(data.error); return; }
     const p = data.data;
@@ -39,11 +41,14 @@ async function fetchPost() {
 
 async function replyPost() {
     const content = document.getElementById('reply').value;
-    await fetch(`https://cx474y-5000.csb.app/api/posts/${postId}/reply`, {
-        method:'POST',
+    const res = await fetch(`https://cx474y-5000.csb.app/api/posts/${postId}/reply`, {
+        method: 'POST',
         headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({content})
+        body: JSON.stringify({content}),
+        credentials: 'include'
     });
+    const data = await res.json();
+    if (!data.success) { alert(data.error); return; }
     document.getElementById('reply').value = '';
     fetchPost();
 }
@@ -52,6 +57,5 @@ function goHome() { window.location.href='index.html'; }
 
 fetchPost();
 </script>
-
 </body>
 </html>
