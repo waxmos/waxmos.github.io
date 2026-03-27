@@ -20,9 +20,12 @@
 
 <button onclick="goHome()">Home</button>
 
+
 <script>
 async function fetchMessages() {
-    const res = await fetch('https://cx474y-5000.csb.app/api/messages');
+    const res = await fetch('https://cx474y-5000.csb.app/api/messages', {
+        credentials: 'include'
+    });
     const data = await res.json();
     const container = document.getElementById('messages');
     container.innerHTML = '';
@@ -30,9 +33,11 @@ async function fetchMessages() {
         data.data.forEach(m => {
             const div = document.createElement('div');
             div.className = 'message';
-            div.innerHTML = `<strong>From ${m.sender}</strong>: ${m.content}`;
+            div.innerHTML = `<strong>From ${m.from}</strong>: ${m.content}`;
             container.appendChild(div);
         });
+    } else {
+        alert(data.error);
     }
 }
 
@@ -40,9 +45,10 @@ async function sendMessage() {
     const to = document.getElementById('to').value;
     const content = document.getElementById('content').value;
     const res = await fetch('https://cx474y-5000.csb.app/api/messages', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({to, content})
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to, content }),
+        credentials: 'include'
     });
     const data = await res.json();
     if (data.success) {
