@@ -19,8 +19,12 @@
 
 <script>
 async function fetchPosts() {
-    const res = await fetch('https://cx474y-5000.csb.app/api/posts');
+    const res = await fetch('https://cx474y-5000.csb.app/api/posts', {
+        credentials: 'include'
+    });
     const data = await res.json();
+    if (!data.success) { alert(data.error); return; }
+
     const container = document.getElementById('posts');
     container.innerHTML = '';
     data.data.forEach(p => {
@@ -39,18 +43,30 @@ async function fetchPosts() {
 async function createPost() {
     const city = document.getElementById('city').value;
     const content = document.getElementById('content').value;
-    await fetch('https://cx474y-5000.csb.app/api/posts', {
+
+    const res = await fetch('https://cx474y-5000.csb.app/api/posts', {
         method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({city, content})
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ city, content }),
+        credentials: 'include'
     });
+
+    const data = await res.json();
+    if (!data.success) { alert(data.error); return; }
+
     document.getElementById('city').value = '';
     document.getElementById('content').value = '';
     fetchPosts();
 }
 
 async function like(id) {
-    await fetch(`https://cx474y-5000.csb.app/api/posts/${id}/like`, {method:'POST'});
+    const res = await fetch(`https://cx474y-5000.csb.app/api/posts/${id}/like`, {
+        method: 'POST',
+        credentials: 'include'
+    });
+    const data = await res.json();
+    if (!data.success) { alert(data.error); return; }
+
     fetchPosts();
 }
 
@@ -59,12 +75,18 @@ function viewPost(id) {
 }
 
 async function logout() {
-    await fetch('https://cx474y-5000.csb.app/api/logout', {method:'POST'});
+    const res = await fetch('https://cx474y-5000.csb.app/api/logout', {
+        method: 'POST',
+        credentials: 'include'
+    });
+    const data = await res.json();
+    if (!data.success) { alert(data.error); return; }
+
     window.location.href = 'login.html';
 }
 
+// initial fetch
 fetchPosts();
 </script>
-
 </body>
 </html>
