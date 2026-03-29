@@ -19,7 +19,7 @@ body {
     padding: 30px;
 }
 
-header {background: #2dd4bf; color: black;}
+header {background: #2dd4bf; color: black; margin: 0 auto;}
 
 h3 {
     margin-top: 30px;
@@ -36,7 +36,6 @@ h3 {
 
 .post {
     background: linear-gradient(145deg, #1c2222, #0e1111);
-    border-radius: 12px;
     padding: 18px;
     color: #d7eaea;
 
@@ -68,7 +67,6 @@ input, textarea {
     width: 100%;
     margin-bottom: 12px;
     padding: 12px;
-    border-radius: 10px;
 
     background: linear-gradient(145deg, #0c0f0f, #1a1f1f);
     color: #d7eaea;
