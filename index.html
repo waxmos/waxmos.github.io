@@ -31,7 +31,10 @@ async function fetchPosts() {
         const div = document.createElement('div');
         div.className = 'post';
         div.innerHTML = `
-            <strong>${p.author}</strong> in <em>${p.city}</em><br>
+            <strong>
+    ${p.author}
+    ${p.verified ? '<img src="/verified.png" class="verified-badge">' : ''}
+</strong> in <em>${p.city}</em><br>
             ${p.content}<br>
             <button onclick="like(${p.id})">Like</button>
             <button onclick="viewPost(${p.id})">View</button>
@@ -85,7 +88,6 @@ async function logout() {
     window.location.href = 'login.html';
 }
 
-// initial fetch
 fetchPosts();
 </script>
 </body>
