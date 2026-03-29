@@ -19,15 +19,7 @@ body {
     padding: 30px;
 }
 
-h1 {
-    font-size: 3rem;
-    color: #2dd4bf;
-    text-shadow:
-        0 2px 0 #0a0a0a,
-        0 4px 8px rgba(0,0,0,0.8),
-        0 0 10px rgba(45,212,191,0.4);
-    margin-bottom: 20px;
-}
+header {background: #2dd4bf; color: black;}
 
 h3 {
     margin-top: 30px;
@@ -114,7 +106,6 @@ button {
     border: 1px solid #123535;
     padding: 10px 16px;
     margin: 6px 6px 0 0;
-    border-radius: 10px;
     cursor: pointer;
     box-shadow:
         0 3px 0 #050606,
