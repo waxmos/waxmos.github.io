@@ -26,8 +26,10 @@ async function fetchProfile() {
     const data = await res.json();
     if (!data.success) { alert(data.error); return; }
 
-    document.getElementById('username').innerText = data.data.username;
-    document.getElementById('bio').innerText = data.data.bio || "No bio yet.";
+document.getElementById('username').innerHTML = `
+    ${data.data.username}
+    ${data.data.verified ? '<img src="/verified.png" class="verified-badge">' : ''}
+`;    document.getElementById('bio').innerText = data.data.bio || "No bio yet.";
 
     const linksEl = document.getElementById('links');
     linksEl.innerHTML = '';
