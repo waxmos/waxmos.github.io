@@ -30,12 +30,19 @@ async function fetchPost() {
     if (!data.success) { alert(data.error); return; }
     const p = data.data;
     const container = document.getElementById('post');
-    container.innerHTML = `<strong>${p.author}</strong><br>${p.content}<br>Likes: ${p.likes}<br><h4>Replies:</h4>`;
+    container.innerHTML = `<strong>
+    ${p.author}
+    ${p.verified ? '<img src="/verified.png" class="verified-badge">' : ''}
+</strong><br>${p.content}<br>Likes: ${p.likes}<br><h4>Replies:</h4>`;
     p.replies.forEach(r => {
         const div = document.createElement('div');
         div.className = 'reply';
-        div.innerHTML = `<strong>${r.author}</strong>: ${r.content}`;
-        container.appendChild(div);
+div.innerHTML = `
+    <strong>
+        ${r.author}
+        ${r.verified ? '<img src="/verified.png" class="verified-badge">' : ''}
+    </strong>: ${r.content}
+`;        container.appendChild(div);
     });
 }
 
