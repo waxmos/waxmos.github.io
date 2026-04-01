@@ -8,8 +8,8 @@
 body {
     background: linear-gradient(#e5edf7, #cfd8e6);
     color: #333;
-    padding: 30px;
-}
+    padding: 30px; padding-top: 5px;
+} h1 {} h1 {font-family: sans-serif;}
 
 header {
     background: linear-gradient(#4a76a8, #3b5f8a);
