@@ -6,10 +6,15 @@
 <link rel="stylesheet" href="/css/main.css">
 </head>
 <body>
-
+<style>
+    header div {display: inline-block; text-align: right;}
+</style>
 <header style="max-width: 1000px; height: 40px;">
-    <img src="https://raw.githubusercontent.com/waxmos/assets/refs/heads/main/logo.png" height="40">
-</header><div id="posts"></div>
+    <img src="https://raw.githubusercontent.com/waxmos/assets/refs/heads/main/logo.png" height="40"><div><a href="messages">Messages</a></div>
+</header>
+    <input type="text" id="goCity" placeholder=" city">
+<button onclick="goToCity()">Go</button>
+    <div id="posts"></div>
 
 <h3>create</h3>
 <input type="text" id="city" placeholder="City">
@@ -90,6 +95,14 @@ async function logout() {
 }
 
 fetchPosts();
+    function goToCity() {
+    const city = document.getElementById('goCity').value.trim();
+    if (!city) {
+        alert('Enter a city');
+        return;
+    }
+    window.location.href = `city.html?c=${encodeURIComponent(city)}`;
+}
 </script>
 </body>
 </html>
