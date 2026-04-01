@@ -33,7 +33,7 @@ async function fetchPosts() {
 
     const container = document.getElementById('posts');
     container.innerHTML = '';
-    data.data.forEach(p => {
+    data.data.reverse().forEach(p => {
         const div = document.createElement('div');
         div.className = 'post';
         div.innerHTML = `
