@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>City</title><!--I don't know if it's great but I tried hard. Dev #5 please change the flat design, I'm bad with CSS>-->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f0f0f;
+      color: white;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    .post {
+      background: #1a1a1a;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+    }
+    .author {
+      font-weight: bold;
+      color: #00bcd4;
+    }
+    .verified {
+      color: gold;
+      margin-left: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<h1 id="title">City</h1>
+<div id="posts"></div>
+
+<script>
+const API = "https://cx474y-5000.csb.app";
+
+const params = new URLSearchParams(window.location.search);
+const city = params.get("c");
+
+if (!city) {
+  document.getElementById("title").innerText = "No city specified";
+} else {
+  document.getElementById("title").innerText = "#" + city;
+
+  loadPosts(city);
+}
+
+async function loadPosts(city) {
+  try {
+    const res = await fetch(API + "/api/posts", {
+      credentials: "include"
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      document.getElementById("posts").innerText = "Error loading posts";
+      return;
+    }
+
+    const filtered = data.data.filter(p => p.city === city);
+
+    const container = document.getElementById("posts");
+
+    if (filtered.length === 0) {
+      container.innerHTML = "<p>No posts in this city yet.</p>";
+      return;
+    }
+
+    filtered.forEach(post => {
+      const div = document.createElement("div");
+      div.className = "post";
+
+      div.innerHTML = `
+        <div class="author">
+          ${post.author}
+          ${post.verified ? '<span class="verified">✔</span>' : ''}
+        </div>
+        <div>${post.content}</div>
+      `;
+
+      container.appendChild(div);
+    });
+
+  } catch (err) {
+    document.getElementById("posts").innerText = "Failed to connect to server";
+  }
+}
+</script>
+
+</body>
+</html>
