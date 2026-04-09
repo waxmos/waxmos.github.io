@@ -109,42 +109,84 @@ async function doSearch(queryOverride = null) {
     tbody.innerHTML = "<tr><td colspan='2'>Loading...</td></tr>";
 
     try {
-        const res = await fetch(`https://dcm3qw-5000.csb.app/api/search?q=${encodeURIComponent(query)}`);
-        const data = await res.json();
+        const [res1, res2] = await Promise.all([
+            fetch(`https://dcm3qw-5000.csb.app/api/search?q=${encodeURIComponent(query)}`),
+            fetch(`https://mkkp33-5000.csb.app/search?q=${encodeURIComponent(query)}`)
+        ]);
+
+        const data1 = await res1.json(); // waxmos API
+        const data2 = await res2.json(); // citrane API
 
         tbody.innerHTML = "";
 
-        if (data.length === 0) {
-            tbody.innerHTML = "<tr><td colspan='2'>No results found</td></tr>";
-            return;
+        let hasResults = false;
+
+        if (data1 && data1.length > 0) {
+            data1.forEach(item => {
+                hasResults = true;
+
+                const row = document.createElement("tr");
+
+                const resultCell = document.createElement("td");
+                const scoreCell = document.createElement("td");
+
+                resultCell.innerHTML = `
+                    <div class="title">
+                        <a href="${item.url}" target="_blank">${item.title}</a>
+                    </div>
+                    <div class="url">${item.url}</div>
+                    <div class="snippet">${item.snippet || ""}</div>
+                `;
+
+                scoreCell.innerHTML = `<div class="score">${item.score}</div>`;
+
+                row.appendChild(resultCell);
+                row.appendChild(scoreCell);
+
+                tbody.appendChild(row);
+            });
         }
 
-        data.forEach(item => {
-            const row = document.createElement("tr");
+        if (data2 && data2.results && data2.results.length > 0) {
+            data2.results.forEach(item => {
+                hasResults = true;
 
-            const resultCell = document.createElement("td");
-            const scoreCell = document.createElement("td");
+                const row = document.createElement("tr");
 
-            resultCell.innerHTML = `
-                <div class="title">
-                    <a href="${item.url}" target="_blank">${item.title}</a>
-                </div>
-                <div class="url">${item.url}</div>
-                <div class="snippet">${item.snippet || ""}</div>
-            `;
+                const resultCell = document.createElement("td");
+                const scoreCell = document.createElement("td");
 
-            scoreCell.innerHTML = `<div class="score">${item.score}</div>`;
+                resultCell.innerHTML = `
+                    <div class="title">
+                        <a href="${item.url}" target="_blank">${escapeHTML(item.title)}</a>
+                    </div>
+                    <div class="url">${item.url}</div>
+                    <div class="snippet">${escapeHTML(item.content.slice(0,200))}...</div>
+                `;
 
-            row.appendChild(resultCell);
-            row.appendChild(scoreCell);
+                scoreCell.innerHTML = `<div class="score">-</div>`;
 
-            tbody.appendChild(row);
-        });
+                row.appendChild(resultCell);
+                row.appendChild(scoreCell);
+
+                tbody.appendChild(row);
+            });
+        }
+
+        if (!hasResults) {
+            tbody.innerHTML = "<tr><td colspan='2'>No results found</td></tr>";
+        }
 
     } catch (err) {
         console.error(err);
         tbody.innerHTML = "<tr><td colspan='2'>Error loading results</td></tr>";
     }
+}
+
+function escapeHTML(str) {
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
