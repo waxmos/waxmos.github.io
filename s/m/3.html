@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background: #400601; margin-top: 5px;
+        }
+
+        h1 {
+            margin-bottom: 10px; color: white; display: none;
+        }
+
+        input {
+            width: 88%;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 1px 16px; width: 10%;
+            font-size: 16px;
+            cursor: pointer; background: linear-gradient(#6c7175, #4d575e, #33434f, #2f5775); color: white;
+        }
+
+        table {
+            margin-top: 25px;
+            border-collapse: collapse;
+            width: 100%;
+            background: white;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+
+        th {
+            background: linear-gradient(#4b5366, #75819e);
+        }
+
+        tr:hover {
+            background-color: grey;
+        }
+td {            padding: 10px;
+   }
+        .url {
+            font-size: 13px;
+            color: #ffb900;
+        }
+
+        .title a {
+            font-weight: bold;
+            color: maroon;
+            text-decoration: none;
+        }
+
+        .title a:hover {
+            text-decoration: underline;
+        }
+
+        .snippet {
+            color: #444;
+            font-size: 14px;
+        }
+
+        .score {
+            font-size: 12px;
+            color: #888;
+        } .left {text-align: left}
+    </style>
+</head>
+<body>
+
+<h1>waxmos</h1>
+
+<input type="text" id="searchBox" placeholder=" ">
+<button onclick="doSearch()">Search</button>
+
+<table>
+    <thead>
+        <tr>
+            <th class="left">Result</th>
+            <th>Score</th>
+        </tr>
+    </thead>
+    <tbody id="resultsBody">
+    </tbody>
+</table>
+<script>
+function getQueryParam(name) {
+    const params = new URLSearchParams(window.location.search);
+    return params.get(name);
+}
+
+async function doSearch(queryOverride = null) {
+    const input = document.getElementById("searchBox");
+    const query = queryOverride || input.value.trim();
+    if (!query) return;
+
+    const newUrl = `${window.location.pathname}?q=${encodeURIComponent(query)}`;
+    window.history.pushState({}, "", newUrl);
+    input.value = query;
+
+    const tbody = document.getElementById("resultsBody");
+    tbody.innerHTML = "<tr><td colspan='2'>Loading...</td></tr>";
+
+    try {
+        const [res1, res2] = await Promise.all([
+            fetch(`https://dcm3qw-5000.csb.app/api/search?q=${encodeURIComponent(query)}`),
+            fetch(`https://mkkp33-5000.csb.app/search?q=${encodeURIComponent(query)}`)
+        ]);
+
+        const data1 = await res1.json();
+        const data2 = await res2.json();
+
+        let combined = [];
+
+        // Waxmos results (already scored)
+        if (data1 && data1.length > 0) {
+            data1.forEach(item => {
+                combined.push({
+                    title: item.title,
+                    url: item.url,
+                    snippet: item.snippet || "",
+                    score: Number(item.score) || 0,
+                    source: "waxmos"
+                });
+            });
+        }
+
+        // Citrane results (no score → create one)
+        if (data2 && data2.results && data2.results.length > 0) {
+            data2.results.forEach((item, index) => {
+                let score = 50; // base score
+
+                if (item.title.toLowerCase().includes(query.toLowerCase())) score += 20;
+                if (item.content.toLowerCase().includes(query.toLowerCase())) score += 10;
+
+                // slight decay by position
+                score -= index;
+
+                combined.push({
+                    title: escapeHTML(item.title),
+                    url: item.url,
+                    snippet: escapeHTML(item.content.slice(0, 200)) + "...",
+                    score: score,
+                    source: "citrane"
+                });
+            });
+        }
+
+        const scores = combined.map(r => r.score);
+        const min = Math.min(...scores);
+        const max = Math.max(...scores);
+
+        combined = combined.map(r => ({
+            ...r,
+            normScore: max === min ? 50 : ((r.score - min) / (max - min)) * 100
+        }));
+
+        combined.sort((a, b) => b.normScore - a.normScore);
+
+        tbody.innerHTML = "";
+
+        if (combined.length === 0) {
+            tbody.innerHTML = "<tr><td colspan='2'>No results found</td></tr>";
+            return;
+        }
+
+        combined.forEach(item => {
+            const row = document.createElement("tr");
+
+            const resultCell = document.createElement("td");
+            const scoreCell = document.createElement("td");
+
+            resultCell.innerHTML = `
+                <div class="title">
+                    <a href="${item.url}" target="_blank">${item.title}</a>
+                </div>
+                <div class="url">${item.url}</div>
+                <div class="snippet">${item.snippet}</div>
+                <div class="score">Source: ${item.source}</div>
+            `;
+
+            scoreCell.innerHTML = `
+                <div class="score">${item.normScore.toFixed(1)}</div>
+            `;
+
+            row.appendChild(resultCell);
+            row.appendChild(scoreCell);
+            tbody.appendChild(row);
+        });
+
+    } catch (err) {
+        console.error(err);
+        tbody.innerHTML = "<tr><td colspan='2'>Error loading results</td></tr>";
+    }
+}
+
+function escapeHTML(str) {
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const input = document.getElementById("searchBox");
+
+    input.addEventListener("keydown", e => {
+        if (e.key === "Enter") doSearch();
+    });
+
+    const q = getQueryParam("q");
+    if (q) doSearch(q);
+});
+</script>
+<script>
+</script><footer>&copy; Waxmos. All rights reserved.</footer>
+</body>
+</html>
