@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background: #400601; margin-top: 5px;
+        }
+
+        h1 {
+            margin-bottom: 10px; color: white; display: none;
+        }
+
+        input {
+            width: 88%;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 1px 16px; width: 10%;
+            font-size: 16px;
+            cursor: pointer; background: linear-gradient(#6c7175, #4d575e, #33434f, #2f5775); color: white;
+        }
+
+        table {
+            margin-top: 25px;
+            border-collapse: collapse;
+            width: 100%;
+            background: white;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+
+        th {
+            background: linear-gradient(#4b5366, #75819e);
+        }
+
+        tr:hover {
+            background-color: grey;
+        }
+td {            padding: 10px;
+   }
+        .url {
+            font-size: 13px;
+            color: #ffb900;
+        }
+
+        .title a {
+            font-weight: bold;
+            color: maroon;
+            text-decoration: none;
+        }
+
+        .title a:hover {
+            text-decoration: underline;
+        }
+
+        .snippet {
+            color: #444;
+            font-size: 14px;
+        }
+
+        .score {
+            font-size: 12px;
+            color: #888;
+        } .left {text-align: left}
+    </style>
+</head>
+<body>
+
+<h1>waxmos</h1>
+
+<input type="text" id="searchBox" placeholder=" ">
+<button onclick="doSearch()">Search</button>
+
+<table>
+    <thead>
+        <tr>
+            <th class="left">Result</th>
+            <th>Score</th>
+        </tr>
+    </thead>
+    <tbody id="resultsBody">
+    </tbody>
+</table>
+<script>
+function getQueryParam(name) {
+    const params = new URLSearchParams(window.location.search);
+    return params.get(name);
+}
+
+async function doSearch(queryOverride = null) {
+    const input = document.getElementById("searchBox");
+    const query = queryOverride || input.value.trim();
+
+    if (!query) return;
+
+    const newUrl = `${window.location.pathname}?q=${encodeURIComponent(query)}`;
+    window.history.pushState({}, "", newUrl);
+
+    input.value = query;
+
+    const tbody = document.getElementById("resultsBody");
+    tbody.innerHTML = "<tr><td colspan='2'>Loading...</td></tr>";
+
+    try {
+        const res = await fetch(`https://dcm3qw-5000.csb.app/api/search?q=${encodeURIComponent(query)}`);
+        const data = await res.json();
+
+        tbody.innerHTML = "";
+
+        if (data.length === 0) {
+            tbody.innerHTML = "<tr><td colspan='2'>No results found</td></tr>";
+            return;
+        }
+
+        data.forEach(item => {
+            const row = document.createElement("tr");
+
+            const resultCell = document.createElement("td");
+            const scoreCell = document.createElement("td");
+
+            resultCell.innerHTML = `
+                <div class="title">
+                    <a href="${item.url}" target="_blank">${item.title}</a>
+                </div>
+                <div class="url">${item.url}</div>
+                <div class="snippet">${item.snippet || ""}</div>
+            `;
+
+            scoreCell.innerHTML = `<div class="score">${item.score}</div>`;
+
+            row.appendChild(resultCell);
+            row.appendChild(scoreCell);
+
+            tbody.appendChild(row);
+        });
+
+    } catch (err) {
+        console.error(err);
+        tbody.innerHTML = "<tr><td colspan='2'>Error loading results</td></tr>";
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const input = document.getElementById("searchBox");
+
+    input.addEventListener("keydown", e => {
+        if (e.key === "Enter") doSearch();
+    });
+
+    const q = getQueryParam("q");
+    if (q) {
+        doSearch(q);
+    }
+});
+</script><footer>&copy; Waxmos. All rights reserved.</footer>
+</body>
+</html>
