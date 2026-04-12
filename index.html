@@ -1,109 +1,198 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>Home</title>
-<link rel="stylesheet" href="/css/second.css">
-</head>
-<body>
-<style>
-    header div {display: inline-block; text-align: right; float: right;} header img {float: left;} header h1 {float: left; color: orange; letter-spacing: -3px;}
-</style>  <style>header {display: none}  h1 {float: left; color: orange; letter-spacing: -3px;}</style>
-<header style="max-width: 1000px; height: 40px;">
-    <h1>waxmos</h1><div><a href="messages">Messages</a></div>
-</header>
-    <h1>waxmos</h1>
-    <input type="text" id="goCity" placeholder=" city">
-<button onclick="goToCity()">Go</button>
-    <div id="posts"></div>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Waxmos (BETA)</title>
 
-<h3>create</h3>
-<input type="text" id="city" placeholder="City">
-<textarea id="content" placeholder="Content"></textarea>
-<button onclick="createPost()">post</button>
-
-<button onclick="logout()">log out</button>
-
-<script>
-async function fetchPosts() {
-    const res = await fetch('https://cx474y-5000.csb.app/api/posts', {
-        credentials: 'include'
-    });
-    const data = await res.json();
-    if (!data.success) { alert(data.error); return; }
-
-    const container = document.getElementById('posts');
-    container.innerHTML = '';
-    data.data.reverse().forEach(p => {
-        const div = document.createElement('div');
-        div.className = 'post';
-        div.innerHTML = `
-            <strong>
-    ${p.author}
-    ${p.verified ? '<img src="/verified.png" class="verified-badge">' : ''}
-</strong> in <em>${p.city}</em><br>
-            ${p.content}<br>
-            <button onclick="like(${p.id})">Like</button>
-            <button onclick="viewPost(${p.id})">View</button>
-        `;
-        container.appendChild(div);
-    });
-}
-
-async function createPost() {
-    const city = document.getElementById('city').value;
-    const content = document.getElementById('content').value;
-
-    const res = await fetch('https://cx474y-5000.csb.app/api/posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ city, content }),
-        credentials: 'include'
-    });
-
-    const data = await res.json();
-    if (!data.success) { alert(data.error); return; }
-
-    document.getElementById('city').value = '';
-    document.getElementById('content').value = '';
-    fetchPosts();
-}
-
-async function like(id) {
-    const res = await fetch(`https://cx474y-5000.csb.app/api/posts/${id}/like`, {
-        method: 'POST',
-        credentials: 'include'
-    });
-    const data = await res.json();
-    if (!data.success) { alert(data.error); return; }
-
-    fetchPosts();
-}
-
-function viewPost(id) {
-    window.location.href = `post.html?id=${id}`;
-}
-
-async function logout() {
-    const res = await fetch('https://cx474y-5000.csb.app/api/logout', {
-        method: 'POST',
-        credentials: 'include'
-    });
-    const data = await res.json();
-    if (!data.success) { alert(data.error); return; }
-
-    window.location.href = 'login.html';
-}
-
-fetchPosts();
-    function goToCity() {
-    const city = document.getElementById('goCity').value.trim();
-    if (!city) {
-        alert('Enter a city');
-        return;
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, Helvetica, sans-serif;
     }
-    window.location.href = `city.html?c=${encodeURIComponent(city)}`;
-}
-</script>
+
+    body {
+      background: linear-gradient(teal, black); background-repeat: no-repeat; min-height: 100vh;
+      color: #111;
+    }
+
+    .topbar {
+      background: linear-gradient(#3a2a1a, #1f140a);
+      color: red;
+      padding: 6px 12px;
+      font-size: 13px;
+      border-bottom: 1px solid #000;
+      text-align: left; display: none;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 20px auto;
+      background: black;
+      border: 1px solid teal;
+      padding: 20px;
+    }
+
+    header {
+      text-align: left;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 64px;
+      font-weight: bold;
+      color: white;
+      text-shadow: 1px 1px 0 #000000, 1px 1px 0 #00000000;
+    }
+
+    h1 small {
+      font-size: 12px;
+      vertical-align: super;
+    }
+
+    .search-box {
+      display: flex;
+      margin: 15px 0;
+      border: 1px solid #333;
+      background: linear-gradient(#fff, lightgrey);
+    }
+
+    .search-box input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      font-size: 16px;
+      outline: none;
+      background: transparent;
+    }
+
+    .search-box button {
+      background: linear-gradient(maroon, darkred);
+      color: #ffd700;
+      border: none;
+      padding: 0 20px;
+      font-weight: bold;
+      cursor: pointer;
+      border-left: 1px solid #000;
+    }
+
+    .search-box button:hover {
+      background: linear-gradient(darkred, maroon);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .card {
+      background: linear-gradient(#fffbe6, grey);
+      border: 1px solid #5a3b1a;
+      padding: 10px;
+      text-align: left;
+      box-shadow: inset 0 1px 0 #fff;
+    }
+
+    .card h3 {
+      font-size: 16px;
+      margin-bottom: 6px;
+      border-bottom: 1px solid #c9a227;
+      padding-bottom: 4px;
+      color: #3a2a1a;
+    }
+
+    .card ul {
+      list-style: none;
+      font-size: 14px;
+    }
+
+    .card li {
+      margin: 4px 0;
+    }
+
+    .card a {
+      text-decoration: none;
+      color: #000;
+    }
+
+    .card a:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      margin-top: 20px;
+      font-size: 12px;
+      color: #333;
+      text-align: center;
+      border-top: 1px solid #c9a227;
+      padding-top: 10px;
+    }
+
+    @media (max-width: 700px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 42px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="topbar">
+    Waxmos
+  </div>
+
+  <div class="container">
+    <header>
+      <h1>Waxmos<small>™BETA</small></h1>
+    </header>
+
+    <form action="search" method="get" class="search-box">
+      <input type="text" name="q" placeholder="Search the web..." required>
+      <button type="submit">Search</button>
+    </form>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Try searching for...</h3>
+        <ul>
+          <li><a href="#">HTML</a></li>
+          <li><a href="#">Reddit</a></li>
+          <li><a href="#"></a></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Join Waxmos</h3>
+        <ul>
+          <li><a href="#">Go to waxmos.com/join</a></li>
+          <li><a href="#">Fill in the form</a></li>
+          <li><a href="#">Check for a reply (email) next week</a></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>+</h3>
+        <ul>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">APIs</a></li>
+          <li><a href="#"></a></li>
+        </ul>
+      </div>
+    </div>
+
+    <footer>
+      © Waxmos. All rights reserved.
+    </footer>
+  </div>
+
 </body>
 </html>
