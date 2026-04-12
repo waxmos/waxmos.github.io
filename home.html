@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Home</title>
+<link rel="stylesheet" href="/css/second.css">
+</head>
+<body>
+<style>
+    header div {display: inline-block; text-align: right; float: right;} header img {float: left;} header h1 {float: left; color: orange; letter-spacing: -3px;}
+</style>  <style>header {display: none}  h1 {float: left; color: orange; letter-spacing: -3px;}</style>
+<header style="max-width: 1000px; height: 40px;">
+    <h1>waxmos</h1><div><a href="messages">Messages</a></div>
+</header>
+    <h1>waxmos</h1>
+    <input type="text" id="goCity" placeholder=" city">
+<button onclick="goToCity()">Go</button>
+    <div id="posts"></div>
+
+<h3>create</h3>
+<input type="text" id="city" placeholder="City">
+<textarea id="content" placeholder="Content"></textarea>
+<button onclick="createPost()">post</button>
+
+<button onclick="logout()">log out</button>
+
+<script>
+async function fetchPosts() {
+    const res = await fetch('https://cx474y-5000.csb.app/api/posts', {
+        credentials: 'include'
+    });
+    const data = await res.json();
+    if (!data.success) { alert(data.error); return; }
+
+    const container = document.getElementById('posts');
+    container.innerHTML = '';
+    data.data.reverse().forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'post';
+        div.innerHTML = `
+            <strong>
+    ${p.author}
+    ${p.verified ? '<img src="/verified.png" class="verified-badge">' : ''}
+</strong> in <em>${p.city}</em><br>
+            ${p.content}<br>
+            <button onclick="like(${p.id})">Like</button>
+            <button onclick="viewPost(${p.id})">View</button>
+        `;
+        container.appendChild(div);
+    });
+}
+
+async function createPost() {
+    const city = document.getElementById('city').value;
+    const content = document.getElementById('content').value;
+
+    const res = await fetch('https://cx474y-5000.csb.app/api/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ city, content }),
+        credentials: 'include'
+    });
+
+    const data = await res.json();
+    if (!data.success) { alert(data.error); return; }
+
+    document.getElementById('city').value = '';
+    document.getElementById('content').value = '';
+    fetchPosts();
+}
+
+async function like(id) {
+    const res = await fetch(`https://cx474y-5000.csb.app/api/posts/${id}/like`, {
+        method: 'POST',
+        credentials: 'include'
+    });
+    const data = await res.json();
+    if (!data.success) { alert(data.error); return; }
+
+    fetchPosts();
+}
+
+function viewPost(id) {
+    window.location.href = `post.html?id=${id}`;
+}
+
+async function logout() {
+    const res = await fetch('https://cx474y-5000.csb.app/api/logout', {
+        method: 'POST',
+        credentials: 'include'
+    });
+    const data = await res.json();
+    if (!data.success) { alert(data.error); return; }
+
+    window.location.href = 'login.html';
+}
+
+fetchPosts();
+    function goToCity() {
+    const city = document.getElementById('goCity').value.trim();
+    if (!city) {
+        alert('Enter a city');
+        return;
+    }
+    window.location.href = `city.html?c=${encodeURIComponent(city)}`;
+}
+</script>
+</body>
+</html>
